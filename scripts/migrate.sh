@@ -289,8 +289,9 @@ migrate_directories() {
 migrate_agents_flat() {
     local agents_dir="$1"
 
-    # Find all nested agent files
-    find "$agents_dir" -type f -name "*.md" -not -path "$agents_dir/*.md" 2>/dev/null | while read -r agent_file; do
+    # Find ALL nested agent files (including those in subdirectories)
+    # Pattern: any .md file that's not directly in agents_dir
+    find "$agents_dir" -mindepth 2 -type f -name "*.md" 2>/dev/null | while read -r agent_file; do
         local filename
         filename=$(basename "$agent_file")
         local flat_path="$agents_dir/$filename"
@@ -299,7 +300,7 @@ migrate_agents_flat() {
             log_info "[DRY RUN] Would flatten: $agent_file -> $flat_path"
         else
             if [[ -f "$flat_path" ]]; then
-                log_warning "Agent already exists at $flat_path, skipping"
+                log_warning "Agent already exists at $flat_path, skipping: $filename"
             else
                 mv "$agent_file" "$flat_path"
                 log_verbose "Flattened: $filename"
