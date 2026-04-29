@@ -1,10 +1,6 @@
 # Qwen Code Ignore File
 # Controls which files Qwen Code should NOT read or modify
 
-# Project state (dynamically generated, not for version control)
-.qwen/SNAPSHOT.md
-SNAPSHOT.md
-
 # Environment and secrets
 .env
 .env.*

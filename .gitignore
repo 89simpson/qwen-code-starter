@@ -75,3 +75,7 @@ dist-release/
 !templates/code/.qwen/
 !templates/content/.qwen/
 !templates/global/.qwen/
+
+# Project state file (auto-generated, don't commit)
+.qwen/SNAPSHOT.md
+SNAPSHOT.md
