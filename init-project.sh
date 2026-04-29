@@ -329,7 +329,12 @@ init_project() {
     fi
 
     # Determine template directory
-    local template_dir="$SCRIPT_DIR/templates/$PROJECT_TYPE"
+    # For hybrid projects, use code as base and add content templates later
+    local template_dir="$SCRIPT_DIR/templates/code"
+    if [[ "$PROJECT_TYPE" == "content" ]]; then
+        template_dir="$SCRIPT_DIR/templates/content"
+    fi
+    
     if [[ ! -d "$template_dir" ]]; then
         log_error "Template directory not found: $template_dir"
         exit 1

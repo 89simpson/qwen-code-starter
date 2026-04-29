@@ -145,8 +145,8 @@ migrate_directories() {
             log_info "[DRY RUN] Would rename .claude/ to .qwen/"
         else
             if [[ -d "$TARGET_DIR/.qwen" ]]; then
-                log_warning ".qwen/ already exists, backing up"
-                mv "$TARGET_DIR/.qwen" "$TARGET_DIR/.qwen.backup"
+                log_warning ".qwen/ already exists, removing (backed up as .qwen.backup)"
+                rm -rf "$TARGET_DIR/.qwen"
             fi
             mv "$SOURCE_DIR/.claude" "$TARGET_DIR/.qwen"
             log_verbose "Renamed .claude/ to .qwen/"
@@ -260,6 +260,20 @@ migrate_hooks() {
 
     local settings_file="$TARGET_DIR/.qwen/settings.json"
 
+    # Replace old Claude hooks with Qwen hooks from framework
+    if [[ -d "$SCRIPT_DIR/../.qwen/hooks" ]]; then
+        if [[ "$DRY_RUN" == true ]]; then
+            log_info "[DRY RUN] Would replace hooks with qwen-code-starter versions"
+        else
+            if [[ -d "$TARGET_DIR/.qwen/hooks" ]]; then
+                log_verbose "Backing up old hooks"
+                mv "$TARGET_DIR/.qwen/hooks" "$TARGET_DIR/.qwen/hooks.backup"
+            fi
+            cp -r "$SCRIPT_DIR/../.qwen/hooks" "$TARGET_DIR/.qwen/"
+            log_verbose "Replaced hooks with qwen-code-starter versions"
+        fi
+    fi
+
     if [[ ! -f "$settings_file" ]]; then
         log_verbose "No settings.json found"
         return 0
@@ -268,17 +282,31 @@ migrate_hooks() {
     if [[ "$DRY_RUN" == true ]]; then
         log_info "[DRY RUN] Would migrate hooks in settings.json"
     else
-        # Remove PostCompact hooks (not supported by Qwen Code)
+        # Update hooks paths from .claude to .qwen and use standard qwen hooks
         python3 << EOF
 import json
+import re
 
 with open('$settings_file', 'r') as f:
     settings = json.load(f)
 
 if 'hooks' in settings:
-    # Remove PostCompact hooks
+    # Remove PostCompact hooks (not supported by Qwen Code)
     settings['hooks'].pop('PostCompact', None)
-    
+
+    # Fix paths in remaining hooks (.claude -> .qwen)
+    # Structure: hooks[hook_type][] -> hooks[] -> command
+    for hook_type in settings['hooks']:
+        for hook_config in settings['hooks'][hook_type]:
+            if 'hooks' in hook_config:
+                for hook in hook_config['hooks']:
+                    if 'command' in hook:
+                        # Replace .claude/hooks with .qwen/hooks
+                        hook['command'] = hook['command'].replace('.claude/hooks', '.qwen/hooks')
+                        # Replace specific hook file names with standard qwen hooks
+                        hook['command'] = re.sub(r'post-tool-checkpoint\.sh', 'post-tool-use.sh', hook['command'])
+                        hook['command'] = re.sub(r'subagent-done\.sh', 'subagent-stop.sh', hook['command'])
+
     # Add PostToolUseFailure if not present
     if 'PostToolUseFailure' not in settings['hooks']:
         settings['hooks']['PostToolUseFailure'] = []
@@ -286,7 +314,7 @@ if 'hooks' in settings:
 with open('$settings_file', 'w') as f:
     json.dump(settings, f, indent=2)
 EOF
-        
+
         log_verbose "Migrated hooks configuration"
     fi
 }
