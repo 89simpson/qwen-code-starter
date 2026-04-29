@@ -142,6 +142,25 @@ migrate_directories() {
     # Ensure target directory exists
     mkdir -p "$TARGET_DIR"
 
+    # Copy all project files (except .git/, .qwen/, .claude/)
+    log_info "Copying project files from $SOURCE_DIR to $TARGET_DIR"
+    if [[ "$DRY_RUN" == true ]]; then
+        log_info "[DRY RUN] Would copy project files"
+    else
+        # Use rsync if available, otherwise use cp
+        if command -v rsync &> /dev/null; then
+            rsync -av --exclude='.git/' --exclude='.qwen/' --exclude='.claude/' "$SOURCE_DIR/" "$TARGET_DIR/"
+        else
+            # Copy everything except .git, .qwen, .claude
+            find "$SOURCE_DIR" -mindepth 1 -maxdepth 1 \
+                ! -name '.git' \
+                ! -name '.qwen' \
+                ! -name '.claude' \
+                -exec cp -r {} "$TARGET_DIR/" \;
+        fi
+        log_verbose "Copied project files"
+    fi
+
     # .claude -> .qwen (copy, not move, to support cross-filesystem migration)
     if [[ -d "$SOURCE_DIR/.claude" ]]; then
         if [[ "$DRY_RUN" == true ]]; then
@@ -153,6 +172,8 @@ migrate_directories() {
             fi
             # Use cp -r instead of mv to support cross-filesystem and separate dirs
             cp -r "$SOURCE_DIR/.claude" "$TARGET_DIR/.qwen"
+            # Remove .claude from target (it was copied from source)
+            rm -rf "$TARGET_DIR/.claude"
             log_verbose "Copied .claude/ to .qwen/"
         fi
     fi
@@ -210,6 +231,9 @@ migrate_project_passport() {
             # Replace CLAUDE references with QWEN in the file
             sed -i.bak 's/CLAUDE\.md/QWEN.md/g; s/\.claude/\.qwen/g' "$TARGET_DIR/QWEN.md"
             rm -f "$TARGET_DIR/QWEN.md.bak"
+
+            # Remove original CLAUDE.md (replaced by QWEN.md)
+            rm -f "$TARGET_DIR/CLAUDE.md"
 
             log_verbose "Copied CLAUDE.md to QWEN.md"
         fi
@@ -355,7 +379,7 @@ migrate_permissions() {
             log_info "[DRY RUN] Would convert manifest.md to .qwenignore"
         else
             log_info "Converting manifest.md to .qwenignore format"
-            
+
             # Create .qwenignore from manifest
             cat > "$TARGET_DIR/.qwenignore" << 'EOF'
 # Qwen Code Ignore File
@@ -394,7 +418,10 @@ logs/
 .DS_Store
 Thumbs.db
 EOF
-            
+
+            # Remove original manifest.md (replaced by .qwenignore)
+            rm -f "$TARGET_DIR/manifest.md"
+
             log_verbose "Created .qwenignore"
         fi
     elif [[ ! -f "$TARGET_DIR/.qwenignore" ]]; then
