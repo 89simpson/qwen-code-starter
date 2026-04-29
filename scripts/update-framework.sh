@@ -65,6 +65,7 @@ EOF
 # Parse arguments
 FORCE=false
 DRY_RUN=false
+TARGET_DIR="."  # Default to current directory
 
 while [[ $# -gt 0 ]]; do
     case $1 in
@@ -84,7 +85,13 @@ while [[ $# -gt 0 ]]; do
             usage
             ;;
         *)
-            TARGET_DIR="$1"
+            # First non-option argument is the target directory
+            if [[ "$TARGET_DIR" == "." ]]; then
+                TARGET_DIR="$1"
+            else
+                log_error "Unexpected argument: $1"
+                usage
+            fi
             shift
             ;;
     esac
