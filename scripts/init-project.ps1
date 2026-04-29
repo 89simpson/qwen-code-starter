@@ -21,6 +21,13 @@ function Write-LogError {
     Write-Host "[ERROR] $Message" -ForegroundColor Red -ErrorVariable +_
 }
 
+function Write-LogVerbose {
+    param([string]$Message)
+    if ($VerbosePreference -eq 'Continue') {
+        Write-Host "[VERBOSE] $Message" -ForegroundColor DarkGray
+    }
+}
+
 function Test-Requirements {
     $missing = @()
 
