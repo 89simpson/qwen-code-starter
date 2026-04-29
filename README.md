@@ -294,6 +294,46 @@ Migration does:
 - Flatten agent structure (nested → flat)
 - Create `.qwenignore`
 - Update markdown references
+- Copy agents from templates (correct format)
+- Migrate SNAPSHOT.md (preserve project knowledge)
+
+## Updating Framework in Projects
+
+Update existing projects with the latest framework files:
+
+```bash
+# Update current directory
+./scripts/update-framework.sh
+
+# Update specific project
+./scripts/update-framework.sh /path/to/project
+
+# Force overwrite all files (including scripts)
+./scripts/update-framework.sh --force
+
+# Dry run (show what would be updated)
+./scripts/update-framework.sh --dry-run
+```
+
+**PowerShell (Windows):**
+```powershell
+.\scripts\update-framework.ps1
+.\scripts\update-framework.ps1 -ProjectPath C:\path\to\project
+.\scripts\update-framework.ps1 -Force
+```
+
+**What gets updated:**
+- `.qwen/hooks/` - Hook scripts (bash + PowerShell)
+- `templates/` - Project templates
+- `.qwenignore` - Ignore patterns
+- `scripts/` - Framework scripts (with `--force`)
+
+**Manual Update from GitHub:**
+
+```bash
+# Download and run update script
+curl -fsSL https://raw.githubusercontent.com/89simpson/qwen-code-starter/master/scripts/update-framework.sh | bash
+```
 
 ## Differences from Claude Code Starter
 
