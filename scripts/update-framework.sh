@@ -91,7 +91,12 @@ while [[ $# -gt 0 ]]; do
 done
 
 # Resolve target directory
-TARGET_DIR="$(cd "$TARGET_DIR" && pwd)"
+if [[ -d "$TARGET_DIR" ]]; then
+    TARGET_DIR="$(cd "$TARGET_DIR" && pwd)"
+else
+    log_error "Directory not found: $TARGET_DIR"
+    exit 1
+fi
 
 log_info "Qwen Code Starter - Framework Updater"
 log_info "Source: $FRAMEWORK_DIR"
