@@ -42,7 +42,7 @@ function Get-Installer {
     Write-LogInfo "Downloading Qwen Code Starter installer..."
 
     $tempFile = [System.IO.Path]::GetTempFileName()
-    $installerUrl = "https://raw.githubusercontent.com/qwen-code-starter/qwen-code-starter/main/scripts/init-project.ps1"
+    $installerUrl = "https://raw.githubusercontent.com/89simpson/qwen-code-starter/master/scripts/init-project.ps1"
 
     try {
         # Try using Invoke-WebRequest (PowerShell 3+)

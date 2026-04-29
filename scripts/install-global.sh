@@ -208,13 +208,13 @@ This directory contains global Qwen Code configurations and templates.
 
 ### Initialize a new project
 
-\`\`\`bash
+```bash
 # Using the framework installer
-curl -fsSL https://raw.githubusercontent.com/qwen-code-starter/main/scripts/init-project.sh | bash
+curl -fsSL https://raw.githubusercontent.com/89simpson/qwen-code-starter/master/scripts/init-project.sh | bash
 
 # Or manually copy templates
 cp -r ~/.qwen/templates/code/* /path/to/new/project/
-\`\`\`
+```
 
 ### Available Scripts
 

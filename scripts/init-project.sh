@@ -54,13 +54,13 @@ download_installer() {
     log_info "Downloading Qwen Code Starter installer..."
 
     if command -v curl &> /dev/null; then
-        if ! curl -fsSL "https://raw.githubusercontent.com/qwen-code-starter/qwen-code-starter/main/scripts/init-project.sh" -o "$temp_file"; then
+        if ! curl -fsSL "https://raw.githubusercontent.com/89simpson/qwen-code-starter/master/scripts/init-project.sh" -o "$temp_file"; then
             log_error "Failed to download installer"
             rm -f "$temp_file"
             exit 1
         fi
     elif command -v wget &> /dev/null; then
-        if ! wget -q "https://raw.githubusercontent.com/qwen-code-starter/qwen-code-starter/main/scripts/init-project.sh" -O "$temp_file"; then
+        if ! wget -q "https://raw.githubusercontent.com/89simpson/qwen-code-starter/master/scripts/init-project.sh" -O "$temp_file"; then
             log_error "Failed to download installer"
             rm -f "$temp_file"
             exit 1
