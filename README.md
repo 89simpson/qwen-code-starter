@@ -278,12 +278,11 @@ bash scripts/install-git-hooks.sh
 Migrate existing Claude Code Starter projects:
 
 ```bash
+# In-place migration (preserves .git, converts .claude → .qwen)
 ./scripts/migrate.sh /path/to/existing/project
-```
 
-Or to a new directory (creates a copy):
-```bash
-./scripts/migrate.sh /path/to/source /path/to/target
+# Migrate to new directory (copies everything including .git)
+./scripts/migrate.sh /path/to/source /path/to/new/project
 ```
 
 Migration does:
@@ -296,6 +295,7 @@ Migration does:
 - Update markdown references
 - Copy agents from templates (correct format)
 - Migrate SNAPSHOT.md (preserve project knowledge)
+- **Preserve `.git/` directory** (git history maintained)
 
 ## Updating Framework in Projects
 
