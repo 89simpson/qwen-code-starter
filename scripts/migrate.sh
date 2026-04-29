@@ -221,44 +221,53 @@ migrate_directories() {
         migrate_framework_files
     fi
 
-    # Copy user project files (exclude framework dirs, .git, .qwen, .claude)
-    log_info "Copying project files from $SOURCE_DIR to $TARGET_DIR"
-    if [[ "$DRY_RUN" == true ]]; then
-        log_info "[DRY RUN] Would copy project files"
+    # Copy user project files
+    # If SOURCE == TARGET (in-place migration), .git is already there
+    # If SOURCE != TARGET (new directory), copy .git too
+    if [[ "$SOURCE_DIR" == "$TARGET_DIR" ]]; then
+        log_verbose "In-place migration - .git preserved"
     else
-        # Use rsync if available, otherwise use cp
-        if command -v rsync &> /dev/null; then
-            rsync -av \
-                --exclude='.git/' \
-                --exclude='.qwen/' \
-                --exclude='.claude/' \
-                --exclude='templates/' \
-                --exclude='scripts/' \
-                --exclude='tests/' \
-                --exclude='release-notes/' \
-                --exclude='CHANGELOG.md' \
-                --exclude='CONTRIBUTING.md' \
-                --exclude='init-project.sh' \
-                "$SOURCE_DIR/" "$TARGET_DIR/"
+        log_info "Copying project files from $SOURCE_DIR to $TARGET_DIR"
+        if [[ "$DRY_RUN" == true ]]; then
+            log_info "[DRY RUN] Would copy project files (including .git)"
         else
-            # Copy user files manually (exclude framework dirs)
-            for item in "$SOURCE_DIR"/*; do
-                local basename
-                basename=$(basename "$item")
-                case "$basename" in
-                    .git|.qwen|.claude|templates|scripts|tests|release-notes)
-                        continue
-                        ;;
-                    CHANGELOG.md|CONTRIBUTING.md|init-project.sh)
-                        continue
-                        ;;
-                    *)
-                        cp -r "$item" "$TARGET_DIR/"
-                        ;;
-                esac
-            done
+            # Use rsync if available, otherwise use cp
+            if command -v rsync &> /dev/null; then
+                rsync -av \
+                    --exclude='.qwen/' \
+                    --exclude='.claude/' \
+                    --exclude='templates/' \
+                    --exclude='scripts/' \
+                    --exclude='tests/' \
+                    --exclude='release-notes/' \
+                    --exclude='CHANGELOG.md' \
+                    --exclude='CONTRIBUTING.md' \
+                    --exclude='init-project.sh' \
+                    "$SOURCE_DIR/" "$TARGET_DIR/"
+            else
+                # Copy everything except excluded dirs
+                for item in "$SOURCE_DIR"/*; do
+                    local basename
+                    basename=$(basename "$item")
+                    case "$basename" in
+                        .qwen|.claude|templates|scripts|tests|release-notes)
+                            continue
+                            ;;
+                        CHANGELOG.md|CONTRIBUTING.md|init-project.sh)
+                            continue
+                            ;;
+                        *)
+                            cp -r "$item" "$TARGET_DIR/"
+                            ;;
+                    esac
+                done
+                # Copy .git explicitly
+                if [[ -d "$SOURCE_DIR/.git" ]]; then
+                    cp -r "$SOURCE_DIR/.git" "$TARGET_DIR/"
+                fi
+            fi
+            log_verbose "Copied project files"
         fi
-        log_verbose "Copied project files"
     fi
 
     # .claude -> .qwen (copy, not move, to support cross-filesystem migration)
