@@ -71,3 +71,9 @@ dist-release/
 
 # Framework state (when in shared/public mode)
 .qwenignore
+
+# Qwen Code local configuration
+# This excludes .qwen/ from version control when framework is installed
+# Templates remain in the repository under templates/
+.qwen/
+!.qwen/hooks/
