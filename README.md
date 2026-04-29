@@ -10,13 +10,26 @@ Qwen Code Starter is an adaptation of Claude Code Starter, specifically designed
 
 ### Quick Start
 
+#### Linux/macOS (Bash)
+
 Initialize a new project with automatic project type detection:
 
 ```bash
 curl -fsSL https://raw.githubusercontent.com/89simpson/qwen-code-starter/master/scripts/init-project.sh | bash
 ```
 
+#### Windows (PowerShell)
+
+Initialize a new project on Windows:
+
+```powershell
+Invoke-WebRequest -Uri "https://raw.githubusercontent.com/89simpson/qwen-code-starter/master/scripts/init-project.ps1" -OutFile init-project.ps1
+.\init-project.ps1
+```
+
 ### Manual Installation
+
+#### Linux/macOS
 
 1. Clone the repository:
 ```bash
@@ -29,15 +42,40 @@ cd qwen-code-starter
 ./init-project.sh
 ```
 
+#### Windows
+
+1. Clone the repository:
+```powershell
+git clone https://github.com/89simpson/qwen-code-starter.git
+cd qwen-code-starter
+```
+
+2. Run the installer:
+```powershell
+.\init-project.ps1
+```
+
 ### Global Installation
 
-Install framework templates globally to `~/.qwen/`:
+#### Linux/macOS
+
+Install framework templates to `~/.qwen/`:
 
 ```bash
 ./scripts/install-global.sh
 ```
 
+#### Windows
+
+Install framework templates to `%USERPROFILE%\.qwen\`:
+
+```powershell
+.\scripts\install-global.ps1
+```
+
 ### Migration from Claude Code Starter
+
+#### Linux/macOS
 
 Migrate existing Claude Code Starter projects:
 
@@ -50,21 +88,41 @@ Or to a new directory:
 ./scripts/migrate.sh /path/to/source /path/to/target
 ```
 
+#### Windows
+
+Migrate existing Claude Code Starter projects:
+
+```powershell
+.\scripts\migrate.ps1 C:\path\to\existing\project
+```
+
+Or to a new directory:
+```powershell
+.\scripts\migrate.ps1 C:\path\to\source C:\path\to\target
+```
+
 ## Project Structure
 
 ```
 qwen-code-starter/
 ├── README.md              # This documentation
 ├── CHANGELOG.md           # Version history
-├── init-project.sh        # Main installer
+├── init-project.sh        # Main installer (Bash)
+├── init-project.ps1       # Main installer (PowerShell)
 ├── scripts/
-│   ├── init-project.sh    # Bootstrap with auto-detection
-│   ├── migrate.sh         # Migration from Claude Code Starter
-│   ├── install-global.sh  # Global installation
-│   ├── switch-repo-access.sh  # Toggle repository access mode
-│   ├── framework-state-mode.sh  # Check framework state
+│   ├── init-project.sh    # Bootstrap with auto-detection (Bash)
+│   ├── init-project.ps1   # Bootstrap with auto-detection (PowerShell)
+│   ├── migrate.sh         # Migration from Claude Code Starter (Bash)
+│   ├── migrate.ps1        # Migration from Claude Code Starter (PowerShell)
+│   ├── install-global.sh  # Global installation (Bash)
+│   ├── install-global.ps1 # Global installation (PowerShell)
+│   ├── switch-repo-access.sh  # Toggle repository access mode (Bash)
+│   ├── switch-repo-access.ps1 # Toggle repository access mode (PowerShell)
+│   ├── framework-state-mode.sh  # Check framework state (Bash)
+│   ├── framework-state-mode.ps1 # Check framework state (PowerShell)
 │   └── lib/
-│       ├── install_common.sh  # Shared installation utilities
+│       ├── install_common.sh  # Shared installation utilities (Bash)
+│       ├── install_common.ps1 # Shared installation utilities (PowerShell)
 │       └── merge_qwen_md.py   # QWEN.md merge utility
 ├── templates/
 │   ├── code/              # Software development projects
@@ -80,7 +138,15 @@ qwen-code-starter/
 │   │   └── content-templates/ # 5 content templates
 │   └── global/            # Global layer templates
 ├── .qwen/
-│   └── hooks/             # 4 hook scripts
+│   └── hooks/             # 8 hook scripts (4 Bash + 4 PowerShell)
+│       ├── pre-compact.sh
+│       ├── pre-compact.ps1
+│       ├── post-tool-use.sh
+│       ├── post-tool-use.ps1
+│       ├── post-tool-use-failure.sh
+│       ├── post-tool-use-failure.ps1
+│       ├── subagent-stop.sh
+│       └── subagent-stop.ps1
 └── tests/
     └── test-merge-qwen-md.py  # Merge utility tests
 ```
@@ -245,6 +311,61 @@ Switch between modes:
 ```bash
 ./scripts/switch-repo-access.sh restricted
 ./scripts/switch-repo-access.sh full
+```
+
+Or on Windows:
+
+```powershell
+.\scripts\switch-repo-access.ps1 restricted
+.\scripts\switch-repo-access.ps1 full
+```
+
+## Windows Support
+
+Qwen Code Starter provides full support for Windows environments through PowerShell scripts.
+
+### Requirements
+
+- **PowerShell 5.1** or later (included with Windows 10/11)
+- **PowerShell 7+** recommended for best experience
+
+### Available PowerShell Scripts
+
+All bash scripts have equivalent PowerShell versions:
+
+| Bash Script | PowerShell Script | Description |
+|-------------|-------------------|-------------|
+| `init-project.sh` | `init-project.ps1` | Bootstrap installer |
+| `migrate.sh` | `migrate.ps1` | Migration from Claude Code Starter |
+| `install-global.sh` | `install-global.ps1` | Global installation |
+| `switch-repo-access.sh` | `switch-repo-access.ps1` | Toggle repository access |
+| `framework-state-mode.sh` | `framework-state-mode.ps1` | Check framework state |
+
+### PowerShell Hooks
+
+All hooks are available in both Bash and PowerShell formats:
+
+- `pre-compact.ps1` - Before context compaction
+- `post-tool-use.ps1` - After successful tool execution
+- `post-tool-use-failure.ps1` - After tool failure
+- `subagent-stop.ps1` - When subagent stops
+
+### Path Handling
+
+PowerShell scripts properly handle Windows path separators (`\`) and UNC paths. All file operations use PowerShell's native cmdlets for cross-platform compatibility.
+
+### Running PowerShell Scripts
+
+If you encounter execution policy errors, run:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+Then run scripts normally:
+
+```powershell
+.\scripts\migrate.ps1 C:\path\to\project
 ```
 
 ## Testing

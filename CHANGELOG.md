@@ -5,6 +5,42 @@ All notable changes to Qwen Code Starter will be documented in this file.
 The format is based on [Keep a Changelog](https://keepachangelog.com/en/1.1.0/),
 and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0.html).
 
+## [Unreleased]
+
+### Added
+
+#### Windows/PowerShell Support
+- Full PowerShell support for Windows environments
+- PowerShell 5.1 and PowerShell 7+ compatibility
+- Native Windows path handling with proper separator support (`\`)
+
+#### PowerShell Scripts
+- `scripts/init-project.ps1` - Bootstrap installer for Windows
+- `scripts/migrate.ps1` - Migration from Claude Code Starter for Windows
+- `scripts/install-global.ps1` - Global installation for Windows
+- `scripts/switch-repo-access.ps1` - Repository access mode switcher for Windows
+- `scripts/framework-state-mode.ps1` - Framework state checker for Windows
+- `scripts/lib/install_common.ps1` - Shared installation utilities for PowerShell
+
+#### PowerShell Hooks
+- `.qwen/hooks/pre-compact.ps1` - Pre-compact hook for Windows
+- `.qwen/hooks/post-tool-use.ps1` - Post-tool-use hook for Windows
+- `.qwen/hooks/post-tool-use-failure.ps1` - Post-tool-use-failure hook for Windows
+- `.qwen/hooks/subagent-stop.ps1` - Subagent-stop hook for Windows
+
+#### Documentation
+- Windows installation instructions in README.md
+- PowerShell script usage examples
+- Execution policy guidance for Windows users
+- Cross-platform script comparison table
+
+### Changed
+
+#### Scripts
+- All PowerShell scripts use proper error handling with try/catch
+- PowerShell scripts use Write-Host with colors for consistent output
+- Path operations use PowerShell-native cmdlets for cross-platform compatibility
+
 ## [1.0.0] - 2026-04-29
 
 ### Added

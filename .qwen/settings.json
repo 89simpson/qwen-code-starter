@@ -66,5 +66,6 @@
     ],
     "maxIterations": 50,
     "contextWindow": "auto"
-  }
+  },
+  "$version": 3
 }
