@@ -248,11 +248,30 @@ Specialized AI personas for specific tasks:
 Automation scripts triggered by Qwen Code events:
 
 - `PreCompact` - Before context compaction
-- `PostToolUse` - After tool execution
+- `PostToolUse` - After tool execution (auto-updates SNAPSHOT.md)
 - `PostToolUseFailure` - After tool failure
 - `SubagentStop` - When subagent stops
 
 **Note:** Qwen Code does not support `PostCompact` hooks.
+
+### Automatic SNAPSHOT.md Updates
+
+SNAPSHOT.md updates automatically after every git commit via post-commit hook.
+
+**Install the hook:**
+```bash
+# macOS/Linux
+bash scripts/install-git-hooks.sh
+
+# Windows (PowerShell)
+.\scripts\install-git-hooks.ps1
+```
+
+**What it tracks:**
+- Last commit message and hash
+- Total commit count
+- Current branch
+- Last activity timestamp
 
 ## Migration
 
