@@ -10,6 +10,12 @@ param(
     [switch]$Help = $false
 )
 
+# Validate ProjectPath is not a flag
+if ($ProjectPath -like '-*') {
+    Write-LogError "Invalid path: $ProjectPath"
+    Show-Help
+}
+
 function Write-LogInfo {
     param([string]$Message)
     Write-Host "[INFO] $Message" -ForegroundColor Cyan
