@@ -249,25 +249,33 @@ OK
 ### Быстрый Старт
 
 ```bash
-# Новый проект
-cd /path/to/new/project
-bash /Users/s.besstremyannyy/Repository/qwen-code-starter/init-project.sh
+# Вариант 1: Через curl (после публикации на GitHub)
+curl -fsSL https://raw.githubusercontent.com/qwen-code-starter/qwen-code-starter/main/scripts/init-project.sh | bash
 
-# Или через curl (после публикации)
-curl -fsSL https://raw.githubusercontent.com/qwen-code-starter/main/scripts/init-project.sh | bash
+# Вариант 2: Из локального репозитория
+git clone https://github.com/qwen-code-starter/qwen-code-starter.git
+cd qwen-code-starter
+./init-project.sh
 ```
 
 ### Глобальная Установка
 
 ```bash
-bash /Users/s.besstremyannyy/Repository/qwen-code-starter/scripts/install-global.sh
+# Из локального репозитория
+./scripts/install-global.sh
+
+# Или после публикации
+curl -fsSL https://raw.githubusercontent.com/qwen-code-starter/qwen-code-starter/main/scripts/install-global.sh | bash
 ```
 
 ### Миграция
 
 ```bash
-# Из Claude Code Starter
-bash /Users/s.besstremyannyy/Repository/qwen-code-starter/scripts/migrate.sh /path/to/old/project
+# Из локального репозитория
+./scripts/migrate.sh /path/to/old/project
+
+# Или после публикации
+curl -fsSL https://raw.githubusercontent.com/qwen-code-starter/qwen-code-starter/main/scripts/migrate.sh | bash -s /path/to/old/project
 ```
 
 ---
@@ -326,7 +334,8 @@ bash /Users/s.besstremyannyy/Repository/qwen-code-starter/scripts/migrate.sh /pa
 
 ## Контакты
 
-- **Репозиторий:** `/Users/s.besstremyannyy/Repository/qwen-code-starter`
+- **Репозиторий:** `https://github.com/qwen-code-starter/qwen-code-starter`
+- **Локальная копия:** `/Users/s.besstremyannyy/Repository/qwen-code-starter`
 - **Версия:** v1.0.0
 - **Дата создания:** 2026-04-29
 - **Лицензия:** MIT
