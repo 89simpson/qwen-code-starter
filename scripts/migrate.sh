@@ -19,6 +19,7 @@ SOURCE_DIR=""
 TARGET_DIR=""
 VERBOSE=false
 DRY_RUN=false
+IS_FRAMEWORK_CLONE=false
 
 log_info() {
     echo -e "${BLUE}[INFO]${NC} $1"
@@ -108,6 +109,70 @@ parse_args() {
     TARGET_DIR="${TARGET_DIR:-$SOURCE_DIR}"
 }
 
+# Check if source is a framework clone (has templates/, scripts/, etc.)
+is_framework_clone() {
+    local dir="$1"
+    [[ -d "$dir/templates" ]] && [[ -d "$dir/scripts" ]] && [[ -d "$dir/tests" ]]
+}
+
+# Migrate framework files (for framework clones)
+migrate_framework_files() {
+    log_info "Updating framework files from qwen-code-starter"
+
+    if [[ "$DRY_RUN" == true ]]; then
+        log_info "[DRY RUN] Would copy framework files"
+        return 0
+    fi
+
+    local framework_dir="$SCRIPT_DIR/.."
+
+    # Copy templates from qwen-code-starter
+    if [[ -d "$framework_dir/templates" ]]; then
+        rm -rf "$TARGET_DIR/templates"
+        cp -r "$framework_dir/templates" "$TARGET_DIR/"
+        log_verbose "Copied templates from framework"
+    fi
+
+    # Copy scripts from qwen-code-starter (except migrate.sh to avoid self-replacement issues)
+    if [[ -d "$framework_dir/scripts" ]]; then
+        # Keep old migrate.sh temporarily, copy other scripts
+        for script in "$framework_dir/scripts"/*; do
+            local basename
+            basename=$(basename "$script")
+            if [[ "$basename" != "migrate.sh" ]]; then
+                cp -r "$script" "$TARGET_DIR/scripts/" 2>/dev/null || mkdir -p "$TARGET_DIR/scripts" && cp -r "$script" "$TARGET_DIR/scripts/"
+            fi
+        done
+        # Copy lib directory
+        if [[ -d "$framework_dir/scripts/lib" ]]; then
+            cp -r "$framework_dir/scripts/lib" "$TARGET_DIR/scripts/"
+        fi
+        log_verbose "Copied scripts from framework"
+    fi
+
+    # Copy tests from qwen-code-starter
+    if [[ -d "$framework_dir/tests" ]]; then
+        rm -rf "$TARGET_DIR/tests"
+        cp -r "$framework_dir/tests" "$TARGET_DIR/"
+        log_verbose "Copied tests from framework"
+    fi
+
+    # Copy release-notes from qwen-code-starter
+    if [[ -d "$framework_dir/release-notes" ]]; then
+        rm -rf "$TARGET_DIR/release-notes"
+        cp -r "$framework_dir/release-notes" "$TARGET_DIR/"
+        log_verbose "Copied release-notes from framework"
+    fi
+
+    # Copy core files from qwen-code-starter
+    for file in CHANGELOG.md CONTRIBUTING.md LICENSE init-project.sh; do
+        if [[ -f "$framework_dir/$file" ]]; then
+            cp "$framework_dir/$file" "$TARGET_DIR/"
+        fi
+    done
+    log_verbose "Copied core files from framework"
+}
+
 # Check if source is a Claude Code Starter project
 check_source() {
     log_info "Checking source directory: $SOURCE_DIR"
@@ -129,7 +194,15 @@ check_source() {
         log_verbose "Found CLAUDE.md"
     fi
 
-    if [[ "$has_claude" == false ]]; then
+    # Check if this is a framework clone
+    if is_framework_clone "$SOURCE_DIR"; then
+        log_info "Detected framework clone - will update framework files"
+        IS_FRAMEWORK_CLONE=true
+    else
+        IS_FRAMEWORK_CLONE=false
+    fi
+
+    if [[ "$has_claude" == false && "$IS_FRAMEWORK_CLONE" == false ]]; then
         log_warning "Directory does not appear to be a Claude Code Starter project"
         log_warning "Proceeding anyway..."
     fi
@@ -142,21 +215,48 @@ migrate_directories() {
     # Ensure target directory exists
     mkdir -p "$TARGET_DIR"
 
-    # Copy all project files (except .git/, .qwen/, .claude/)
+    # For framework clones: replace framework files, preserve user data
+    if [[ "$IS_FRAMEWORK_CLONE" == true ]]; then
+        log_info "Migrating framework clone - replacing framework files"
+        migrate_framework_files
+    fi
+
+    # Copy user project files (exclude framework dirs, .git, .qwen, .claude)
     log_info "Copying project files from $SOURCE_DIR to $TARGET_DIR"
     if [[ "$DRY_RUN" == true ]]; then
         log_info "[DRY RUN] Would copy project files"
     else
         # Use rsync if available, otherwise use cp
         if command -v rsync &> /dev/null; then
-            rsync -av --exclude='.git/' --exclude='.qwen/' --exclude='.claude/' "$SOURCE_DIR/" "$TARGET_DIR/"
+            rsync -av \
+                --exclude='.git/' \
+                --exclude='.qwen/' \
+                --exclude='.claude/' \
+                --exclude='templates/' \
+                --exclude='scripts/' \
+                --exclude='tests/' \
+                --exclude='release-notes/' \
+                --exclude='CHANGELOG.md' \
+                --exclude='CONTRIBUTING.md' \
+                --exclude='init-project.sh' \
+                "$SOURCE_DIR/" "$TARGET_DIR/"
         else
-            # Copy everything except .git, .qwen, .claude
-            find "$SOURCE_DIR" -mindepth 1 -maxdepth 1 \
-                ! -name '.git' \
-                ! -name '.qwen' \
-                ! -name '.claude' \
-                -exec cp -r {} "$TARGET_DIR/" \;
+            # Copy user files manually (exclude framework dirs)
+            for item in "$SOURCE_DIR"/*; do
+                local basename
+                basename=$(basename "$item")
+                case "$basename" in
+                    .git|.qwen|.claude|templates|scripts|tests|release-notes)
+                        continue
+                        ;;
+                    CHANGELOG.md|CONTRIBUTING.md|init-project.sh)
+                        continue
+                        ;;
+                    *)
+                        cp -r "$item" "$TARGET_DIR/"
+                        ;;
+                esac
+            done
         fi
         log_verbose "Copied project files"
     fi
@@ -487,12 +587,16 @@ generate_report() {
     echo "Migration Summary:"
     echo "  Source: $SOURCE_DIR"
     echo "  Target: $TARGET_DIR"
+    if [[ "$IS_FRAMEWORK_CLONE" == true ]]; then
+        echo "  Type: Framework clone (Claude Code Starter → Qwen Code Starter)"
+    fi
     echo
     echo "Changes made:"
     [[ -d "$TARGET_DIR/.qwen" ]] && echo "  ✓ Renamed .claude/ to .qwen/"
     [[ -f "$TARGET_DIR/QWEN.md" ]] && echo "  ✓ Renamed CLAUDE.md to QWEN.md"
     [[ -f "$TARGET_DIR/.qwen/SNAPSHOT.md" ]] && echo "  ✓ Migrated SNAPSHOT.md (project state preserved)"
     [[ -f "$TARGET_DIR/.qwenignore" ]] && echo "  ✓ Created .qwenignore"
+    [[ "$IS_FRAMEWORK_CLONE" == true ]] && echo "  ✓ Updated framework files (templates, scripts, tests)"
     echo "  ✓ Updated skills frontmatter"
     echo "  ✓ Migrated hooks configuration"
     echo "  ✓ Flattened agent structure"
