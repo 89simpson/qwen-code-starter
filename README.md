@@ -273,6 +273,35 @@ bash scripts/install-git-hooks.sh
 - Current branch
 - Last activity timestamp
 
+### Hook Configuration
+
+**Important:** Hooks must be configured in **project settings** (`.qwen/settings.json`), not global settings (`~/.qwen/settings.json`).
+
+**To enable hooks for a project:**
+
+1. Ensure `.qwen/settings.json` has hooks configuration:
+```json
+{
+  "hooks": {
+    "PreCompact": [...],
+    "PostToolUse": [...],
+    "PostToolUseFailure": [...],
+    "SubagentStop": [...]
+  }
+}
+```
+
+2. Remove hooks from global settings (if present):
+```bash
+python3 -c "import json; f=open('$HOME/.qwen/settings.json'); d=json.load(f); f.close(); d.pop('hooks',None); open('$HOME/.qwen/settings.json','w').write(json.dumps(d,indent=2))"
+```
+
+3. Restart Qwen Code to reload project settings.
+
+**Note:** If global `~/.qwen/settings.json` exists, Qwen Code may use it instead of project settings. For per-project hooks, either:
+- Remove global settings entirely, or
+- Remove `hooks` key from global settings
+
 ## Migration
 
 Migrate existing Claude Code Starter projects:
