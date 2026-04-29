@@ -244,6 +244,10 @@ migrate_directories() {
                     --exclude='CONTRIBUTING.md' \
                     --exclude='init-project.sh' \
                     "$SOURCE_DIR/" "$TARGET_DIR/"
+                # Copy .git explicitly (rsync doesn't copy it by default)
+                if [[ -d "$SOURCE_DIR/.git" ]]; then
+                    cp -r "$SOURCE_DIR/.git" "$TARGET_DIR/"
+                fi
             else
                 # Copy everything except excluded dirs
                 for item in "$SOURCE_DIR"/*; do
