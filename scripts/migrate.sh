@@ -283,6 +283,18 @@ migrate_directories() {
         log_info "Converting agents to flat structure"
         migrate_agents_flat "$TARGET_DIR/.qwen/agents"
     fi
+
+    # Replace agents with qwen-code-starter versions (correct format)
+    if [[ -d "$SCRIPT_DIR/../templates/code/agents" ]]; then
+        log_info "Updating agents from qwen-code-starter templates"
+        if [[ "$DRY_RUN" == true ]]; then
+            log_info "[DRY RUN] Would update agents"
+        else
+            mkdir -p "$TARGET_DIR/.qwen/agents"
+            cp "$SCRIPT_DIR/../templates/code/agents/"*.md "$TARGET_DIR/.qwen/agents/" 2>/dev/null || true
+            log_verbose "Updated agents from templates"
+        fi
+    fi
 }
 
 # Convert nested agent structure to flat
