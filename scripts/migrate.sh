@@ -139,17 +139,21 @@ check_source() {
 migrate_directories() {
     log_info "Migrating directory structure"
 
-    # .claude -> .qwen
+    # Ensure target directory exists
+    mkdir -p "$TARGET_DIR"
+
+    # .claude -> .qwen (copy, not move, to support cross-filesystem migration)
     if [[ -d "$SOURCE_DIR/.claude" ]]; then
         if [[ "$DRY_RUN" == true ]]; then
-            log_info "[DRY RUN] Would rename .claude/ to .qwen/"
+            log_info "[DRY RUN] Would copy .claude/ to .qwen/"
         else
             if [[ -d "$TARGET_DIR/.qwen" ]]; then
-                log_warning ".qwen/ already exists, removing (backed up as .qwen.backup)"
+                log_warning ".qwen/ already exists, removing"
                 rm -rf "$TARGET_DIR/.qwen"
             fi
-            mv "$SOURCE_DIR/.claude" "$TARGET_DIR/.qwen"
-            log_verbose "Renamed .claude/ to .qwen/"
+            # Use cp -r instead of mv to support cross-filesystem and separate dirs
+            cp -r "$SOURCE_DIR/.claude" "$TARGET_DIR/.qwen"
+            log_verbose "Copied .claude/ to .qwen/"
         fi
     fi
 
@@ -194,19 +198,20 @@ migrate_project_passport() {
 
     if [[ -f "$SOURCE_DIR/CLAUDE.md" ]]; then
         if [[ "$DRY_RUN" == true ]]; then
-            log_info "[DRY RUN] Would rename CLAUDE.md to QWEN.md"
+            log_info "[DRY RUN] Would copy CLAUDE.md to QWEN.md"
         else
             if [[ -f "$TARGET_DIR/QWEN.md" ]]; then
                 log_warning "QWEN.md already exists, backing up"
                 mv "$TARGET_DIR/QWEN.md" "$TARGET_DIR/QWEN.md.backup"
             fi
-            mv "$SOURCE_DIR/CLAUDE.md" "$TARGET_DIR/QWEN.md"
-            
+            # Use cp instead of mv to support cross-filesystem migration
+            cp "$SOURCE_DIR/CLAUDE.md" "$TARGET_DIR/QWEN.md"
+
             # Replace CLAUDE references with QWEN in the file
             sed -i.bak 's/CLAUDE\.md/QWEN.md/g; s/\.claude/\.qwen/g' "$TARGET_DIR/QWEN.md"
             rm -f "$TARGET_DIR/QWEN.md.bak"
-            
-            log_verbose "Renamed CLAUDE.md to QWEN.md"
+
+            log_verbose "Copied CLAUDE.md to QWEN.md"
         fi
     elif [[ -f "$SOURCE_DIR/QWEN.md" ]]; then
         log_verbose "QWEN.md already exists"
@@ -265,10 +270,8 @@ migrate_hooks() {
         if [[ "$DRY_RUN" == true ]]; then
             log_info "[DRY RUN] Would replace hooks with qwen-code-starter versions"
         else
-            if [[ -d "$TARGET_DIR/.qwen/hooks" ]]; then
-                log_verbose "Backing up old hooks"
-                mv "$TARGET_DIR/.qwen/hooks" "$TARGET_DIR/.qwen/hooks.backup"
-            fi
+            # Remove old hooks and copy fresh ones from framework
+            rm -rf "$TARGET_DIR/.qwen/hooks"
             cp -r "$SCRIPT_DIR/../.qwen/hooks" "$TARGET_DIR/.qwen/"
             log_verbose "Replaced hooks with qwen-code-starter versions"
         fi
