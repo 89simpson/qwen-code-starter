@@ -1,13 +1,25 @@
 ---
 name: setup-project
-description: One-command project bootstrap. Auto-detects project type and applies appropriate templates.
+description: One-command project bootstrap. USES init-project.sh SCRIPT - does NOT manually modify files.
 ---
 
 # Setup Project Skill
 
-## Purpose
+## ⚠️ CRITICAL: DO NOT MANUALLY MODIFY PROJECT FILES
 
-Bootstrap new or existing projects with Qwen Code Starter framework.
+This skill **MUST** use the installation script. **NEVER** manually:
+- Delete project files
+- Overwrite existing files without backup
+- Remove directories
+
+## Correct Execution Flow
+
+**When user runs `/setup-project`:**
+
+1. **Check if init-project.sh exists** in project root
+2. **If YES**: Run the script: `bash init-project.sh` or `./init-project.sh`
+3. **If NO**: Download and run: `curl -fsSL https://raw.githubusercontent.com/89simpson/qwen-code-starter/master/scripts/init-project.sh | bash`
+4. **Let the script handle everything** - it has proper backup and merge logic
 
 ## When to Use
 
@@ -16,7 +28,27 @@ Bootstrap new or existing projects with Qwen Code Starter framework.
 - Migrating from Claude Code Starter
 - Upgrading framework version
 
-## Procedures
+## Procedures (FOR SCRIPT REFERENCE ONLY)
+
+The init-project.sh script handles these procedures automatically. **DO NOT execute these manually!**
+
+### Safety Rules
+
+1. **ALWAYS use init-project.sh** - never manual file operations
+2. **ALWAYS create backup** before modifying existing files
+3. **NEVER delete** user data, source code, or project files
+4. **ALWAYS merge** - don't overwrite QWEN.md if it exists
+5. **PRESERVE** .git/, src/, tests/, and all user directories
+
+### Error Recovery
+
+If files were accidentally deleted:
+
+1. **Stop immediately**
+2. **Check git**: `git status` and `git restore .` if in git repo
+3. **Check backup**: Look for `.qwen/backup-*` or `*.backup` files
+4. **Restore from git**: `git checkout HEAD -- <deleted-files>`
+5. **Report error**: Tell user what happened and offer recovery options
 
 ### New Project
 
