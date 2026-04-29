@@ -218,6 +218,30 @@ migrate_project_passport() {
     fi
 }
 
+# Migrate SNAPSHOT.md (preserve project state/knowledge)
+migrate_snapshot() {
+    log_info "Migrating project state (SNAPSHOT.md)"
+
+    if [[ -f "$SOURCE_DIR/.claude/SNAPSHOT.md" ]]; then
+        if [[ "$DRY_RUN" == true ]]; then
+            log_info "[DRY RUN] Would copy SNAPSHOT.md to .qwen/SNAPSHOT.md"
+        else
+            # Copy SNAPSHOT.md to preserve accumulated knowledge
+            cp "$SOURCE_DIR/.claude/SNAPSHOT.md" "$TARGET_DIR/.qwen/SNAPSHOT.md"
+            log_verbose "Copied SNAPSHOT.md (project state preserved)"
+        fi
+    elif [[ -f "$SOURCE_DIR/SNAPSHOT.md" ]]; then
+        if [[ "$DRY_RUN" == true ]]; then
+            log_info "[DRY RUN] Would copy SNAPSHOT.md to .qwen/SNAPSHOT.md"
+        else
+            cp "$SOURCE_DIR/SNAPSHOT.md" "$TARGET_DIR/.qwen/SNAPSHOT.md"
+            log_verbose "Copied SNAPSHOT.md (project state preserved)"
+        fi
+    else
+        log_verbose "No SNAPSHOT.md found (new project state will be created)"
+    fi
+}
+
 # Migrate skills (remove unsupported frontmatter)
 migrate_skills() {
     log_info "Migrating skills"
@@ -440,6 +464,7 @@ generate_report() {
     echo "Changes made:"
     [[ -d "$TARGET_DIR/.qwen" ]] && echo "  ✓ Renamed .claude/ to .qwen/"
     [[ -f "$TARGET_DIR/QWEN.md" ]] && echo "  ✓ Renamed CLAUDE.md to QWEN.md"
+    [[ -f "$TARGET_DIR/.qwen/SNAPSHOT.md" ]] && echo "  ✓ Migrated SNAPSHOT.md (project state preserved)"
     [[ -f "$TARGET_DIR/.qwenignore" ]] && echo "  ✓ Created .qwenignore"
     echo "  ✓ Updated skills frontmatter"
     echo "  ✓ Migrated hooks configuration"
@@ -455,13 +480,14 @@ generate_report() {
 
 main() {
     parse_args "$@"
-    
+
     log_info "Qwen Code Starter Migration"
     echo
-    
+
     check_source
     migrate_directories
     migrate_project_passport
+    migrate_snapshot
     migrate_skills
     migrate_hooks
     migrate_permissions

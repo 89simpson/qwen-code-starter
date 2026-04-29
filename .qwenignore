@@ -1,0 +1,67 @@
+# Qwen Code Ignore File
+# Controls which files Qwen Code should NOT read or modify
+
+# Project state (dynamically generated, not for version control)
+.qwen/SNAPSHOT.md
+SNAPSHOT.md
+
+# Environment and secrets
+.env
+.env.*
+*.env
+secrets/
+credentials/
+*.key
+*.pem
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+__pycache__/
+
+# Dependencies
+node_modules/
+vendor/
+.venv/
+venv/
+
+# IDE and editor files
+.idea/
+.vscode/
+*.swp
+*.swo
+
+# OS files
+.DS_Store
+Thumbs.db
+
+# Logs
+*.log
+logs/
+
+# Temporary files
+tmp/
+temp/
+*.tmp
+
+# Large binary files
+*.bin
+*.exe
+*.dll
+*.so
+*.dylib
+
+# Media files (unless specifically needed)
+*.mp4
+*.mp3
+*.avi
+*.mov
+*.png
+*.jpg
+*.jpeg
+*.gif
+
+# Minified files
+*.min.js
+*.min.css
