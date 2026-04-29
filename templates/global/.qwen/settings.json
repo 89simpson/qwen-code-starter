@@ -1,0 +1,71 @@
+{
+  "projectName": "qwen-code-project",
+  "projectType": "code",
+  "hooks": {
+    "PreCompact": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .qwen/hooks/pre-compact.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUse": [
+      {
+        "matcher": "write_file|edit",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .qwen/hooks/post-tool-use.sh"
+          }
+        ]
+      }
+    ],
+    "PostToolUseFailure": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .qwen/hooks/post-tool-use-failure.sh"
+          }
+        ]
+      }
+    ],
+    "SubagentStop": [
+      {
+        "matcher": "",
+        "hooks": [
+          {
+            "type": "command",
+            "command": "bash .qwen/hooks/subagent-stop.sh"
+          }
+        ]
+      }
+    ]
+  },
+  "permissions": {
+    "allow": [
+      "read_file",
+      "write_file",
+      "edit",
+      "run_shell_command",
+      "glob",
+      "task",
+      "web_fetch"
+    ],
+    "deny": []
+  },
+  "settings": {
+    "autoApprove": [],
+    "requireConfirmation": [
+      "run_shell_command"
+    ],
+    "maxIterations": 50,
+    "contextWindow": "auto"
+  },
+  "$version": 3
+}
