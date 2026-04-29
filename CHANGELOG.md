@@ -21,8 +21,6 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - `scripts/install-global.sh` - Global installation to `~/.qwen/`
 - `scripts/switch-repo-access.sh` - Toggle repository access modes
 - `scripts/framework-state-mode.sh` - Check framework state
-- `scripts/build-release.sh` - Build release packages
-- `scripts/validate-release.sh` - Validate release integrity
 - `scripts/lib/install_common.sh` - Shared installation utilities
 - `scripts/lib/merge_qwen_md.py` - QWEN.md merge utility
 
@@ -40,12 +38,11 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - 5 content templates (chapter, lesson, article, document, transcript)
 
 #### Qwen Configuration
-- `.qwen/settings.json` - Template with hooks configuration
-- Example skills, agents, and hooks
+- `.qwen/hooks/` - 4 hook scripts (pre-compact, post-tool-use, post-tool-use-failure, subagent-stop)
 - Support for PreCompact, PostToolUse, PostToolUseFailure, SubagentStop hooks
 
 #### Testing
-- `tests/test-merge-qwen-md.py` - Test suite for merge utility
+- `tests/test-merge-qwen-md.py` - Test suite for merge utility (20 tests)
 
 ### Changed
 
@@ -57,6 +54,12 @@ and this project adheres to [Semantic Versioning](https://semver.org/spec/v2.0.0
 - Removed `allowed-tools` and `disable-model-invocation` from skills frontmatter
 - Removed `PostCompact` hook (not supported by Qwen Code)
 - Added `PostToolUseFailure` hook support
+
+#### Bug Fixes
+- **migrate.sh**: Fixed hooks migration to update nested hook structure in settings.json
+- **migrate.sh**: Changed from `mv` to `cp` for cross-filesystem support
+- **migrate.sh**: Added target directory creation (mkdir -p)
+- **init-project.sh**: Fixed hybrid project template detection (uses code + content templates)
 
 ### Technical Details
 
@@ -107,4 +110,4 @@ description: What it does and when to use
 - Repository access modes documentation
 - Differences table from Claude Code Starter
 
-[1.0.0]: https://github.com/qwen-code-starter/qwen-code-starter/releases/tag/v1.0.0
+[1.0.0]: https://github.com/89simpson/qwen-code-starter/releases/tag/v1.0.0

@@ -13,14 +13,14 @@ Qwen Code Starter is an adaptation of Claude Code Starter, specifically designed
 Initialize a new project with automatic project type detection:
 
 ```bash
-curl -fsSL https://raw.githubusercontent.com/qwen-code-starter/main/scripts/init-project.sh | bash
+curl -fsSL https://raw.githubusercontent.com/89simpson/qwen-code-starter/master/scripts/init-project.sh | bash
 ```
 
 ### Manual Installation
 
 1. Clone the repository:
 ```bash
-git clone https://github.com/qwen-code-starter/qwen-code-starter.git
+git clone https://github.com/89simpson/qwen-code-starter.git
 cd qwen-code-starter
 ```
 
@@ -37,6 +37,19 @@ Install framework templates globally to `~/.qwen/`:
 ./scripts/install-global.sh
 ```
 
+### Migration from Claude Code Starter
+
+Migrate existing Claude Code Starter projects:
+
+```bash
+./scripts/migrate.sh /path/to/existing/project
+```
+
+Or to a new directory:
+```bash
+./scripts/migrate.sh /path/to/source /path/to/target
+```
+
 ## Project Structure
 
 ```
@@ -46,33 +59,28 @@ qwen-code-starter/
 ├── init-project.sh        # Main installer
 ├── scripts/
 │   ├── init-project.sh    # Bootstrap with auto-detection
-│   ├── migrate.sh         # Migration from existing projects
+│   ├── migrate.sh         # Migration from Claude Code Starter
 │   ├── install-global.sh  # Global installation
 │   ├── switch-repo-access.sh  # Toggle repository access mode
 │   ├── framework-state-mode.sh  # Check framework state
-│   ├── build-release.sh   # Build release package
-│   ├── validate-release.sh # Validate release integrity
 │   └── lib/
 │       ├── install_common.sh  # Shared installation utilities
 │       └── merge_qwen_md.py   # QWEN.md merge utility
 ├── templates/
 │   ├── code/              # Software development projects
 │   │   ├── QWEN.md        # Project passport
-│   │   ├── rules/         # Development rules
-│   │   ├── skills/        # Development skills
-│   │   └── agents/        # Development agents
+│   │   ├── rules/         # 7 development rules
+│   │   ├── skills/        # 6 development skills
+│   │   └── agents/        # 3 development agents
 │   ├── content/           # Content creation projects
 │   │   ├── QWEN.md        # Project passport
-│   │   ├── rules/         # Content rules
-│   │   ├── skills/        # Content skills
-│   │   ├── agents/        # Content agents
-│   │   └── content-templates/ # Content templates
+│   │   ├── rules/         # 5 content rules
+│   │   ├── skills/        # 7 content skills
+│   │   ├── agents/        # 4 content agents
+│   │   └── content-templates/ # 5 content templates
 │   └── global/            # Global layer templates
 ├── .qwen/
-│   ├── settings.json      # Qwen Code settings template
-│   ├── skills/            # Example skills
-│   ├── agents/            # Example agents
-│   └── hooks/             # Example hook scripts
+│   └── hooks/             # 4 hook scripts
 └── tests/
     └── test-merge-qwen-md.py  # Merge utility tests
 ```
@@ -180,17 +188,6 @@ Automation scripts triggered by Qwen Code events:
 
 **Note:** Qwen Code does not support `PostCompact` hooks.
 
-## Differences from Claude Code Starter
-
-| Feature | Claude Code Starter | Qwen Code Starter |
-|---------|---------------------|-------------------|
-| Config directory | `.claude/` | `.qwen/` |
-| Project passport | `CLAUDE.md` | `QWEN.md` |
-| Permissions | `manifest.md` | `settings.json` + `.qwenignore` |
-| Agent structure | Nested directories | Flat (`.qwen/agents/name.md`) |
-| Skills frontmatter | Includes `allowed-tools`, `disable-model-invocation` | Removed (Qwen doesn't use these) |
-| Hooks | PreCompact, PostCompact, PostToolUse, SubagentStop | PreCompact, PostToolUse, PostToolUseFailure, SubagentStop (no PostCompact) |
-
 ## Migration
 
 Migrate existing Claude Code Starter projects:
@@ -199,12 +196,30 @@ Migrate existing Claude Code Starter projects:
 ./scripts/migrate.sh /path/to/existing/project
 ```
 
-This will:
-- Convert `.claude/` to `.qwen/`
-- Rename `CLAUDE.md` to `QWEN.md`
-- Adapt skills frontmatter
-- Convert agent structure to flat layout
-- Update hook configurations
+Or to a new directory (creates a copy):
+```bash
+./scripts/migrate.sh /path/to/source /path/to/target
+```
+
+Migration does:
+- Copy `.claude/` to `.qwen/` (original preserved)
+- Copy `CLAUDE.md` to `QWEN.md`
+- Replace hooks with qwen-code-starter versions
+- Update `settings.json` hook paths
+- Flatten agent structure (nested → flat)
+- Create `.qwenignore`
+- Update markdown references
+
+## Differences from Claude Code Starter
+
+| Feature | Claude Code Starter | Qwen Code Starter |
+|---------|---------------------|-------------------|
+| Config directory | `.claude/` | `.qwen/` |
+| Project passport | `CLAUDE.md` | `QWEN.md` |
+| Permissions | `manifest.md` | `settings.json` + `.qwenignore` |
+| Agent structure | Nested directories | Flat (`.qwen/agents/name.md`) |
+| Skills frontmatter | `allowed-tools`, `disable-model-invocation` | Removed (not supported) |
+| Hooks | PreCompact, PostCompact, PostToolUse, SubagentStop | PreCompact, PostToolUse, PostToolUseFailure, SubagentStop |
 
 ## Repository Access Modes
 
@@ -234,13 +249,15 @@ Switch between modes:
 
 ## Testing
 
-Run the test suite:
+Run the test suite for the merge utility:
 
 ```bash
-python tests/test-merge-qwen-md.py
+python3 tests/test-merge-qwen-md.py
 ```
 
-## Version History
+## Version
+
+Current version: **v1.0.0**
 
 See [CHANGELOG.md](CHANGELOG.md) for version history.
 
