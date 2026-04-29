@@ -70,7 +70,10 @@ dist-release/
 *.zip
 
 # Qwen Code local configuration
-# This excludes .qwen/ from version control when framework is installed
-# Templates remain in the repository under templates/
+# Root .qwen/ is excluded (local project state)
+# But .qwen/ in templates IS included (framework templates)
 .qwen/
 !.qwen/hooks/
+!templates/code/.qwen/
+!templates/content/.qwen/
+!templates/global/.qwen/
