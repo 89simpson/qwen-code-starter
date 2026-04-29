@@ -202,6 +202,45 @@ function Update-Scripts {
     Write-LogSuccess "Scripts updated"
 }
 
+# Update root files (init-project.sh, init-project.ps1)
+function Update-RootFiles {
+    Write-LogInfo "Updating root framework files..."
+    
+    $rootFiles = @("init-project.sh", "init-project.ps1")
+    $updated = 0
+    
+    foreach ($file in $rootFiles) {
+        $src = "$FrameworkDir\$file"
+        $tgt = "$TargetDir\$file"
+        
+        if (-not (Test-Path $src)) {
+            continue
+        }
+        
+        if ($DryRun) {
+            Write-LogInfo "[DRY RUN] Would update: $file"
+            continue
+        }
+        
+        if ((Test-Path $tgt) -and (-not $Force)) {
+            # Check if files differ
+            if ((Get-FileHash $src).Hash -ne (Get-FileHash $tgt).Hash) {
+                Copy-Item $src $tgt -Force
+                Write-LogInfo "  Updated: $file"
+                $updated++
+            }
+        } else {
+            Copy-Item $src $tgt -Force
+            Write-LogInfo "  Added/Replaced: $file"
+            $updated++
+        }
+    }
+    
+    if ($updated -gt 0) {
+        Write-LogSuccess "Root files updated: $updated files"
+    }
+}
+
 # Update .qwenignore
 function Update-Qwenignore {
     Write-LogInfo "Updating .qwenignore..."
@@ -232,6 +271,8 @@ function Show-Summary {
     Write-Host "Updated components:"
     if (Test-Path "$TargetDir\.qwen\hooks") { Write-Host "  ✓ Hooks" }
     if (Test-Path "$TargetDir\templates") { Write-Host "  ✓ Templates" }
+    if (Test-Path "$TargetDir\init-project.sh") { Write-Host "  ✓ init-project.sh" }
+    if (Test-Path "$TargetDir\init-project.ps1") { Write-Host "  ✓ init-project.ps1" }
     if (Test-Path "$TargetDir\.qwenignore") { Write-Host "  ✓ .qwenignore" }
     if ($Force -and (Test-Path "$TargetDir\scripts")) { Write-Host "  ✓ Scripts (force)" }
     Write-Host ""
@@ -246,5 +287,6 @@ function Show-Summary {
 Update-Hooks
 Update-Templates
 Update-Scripts
+Update-RootFiles
 Update-Qwenignore
 Show-Summary

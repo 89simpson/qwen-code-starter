@@ -236,6 +236,45 @@ update_scripts() {
     log_success "Scripts updated"
 }
 
+# Update root files (init-project.sh, init-project.ps1, etc.)
+update_root_files() {
+    log_info "Updating root framework files..."
+    
+    local root_files=("init-project.sh" "init-project.ps1")
+    local updated=0
+    
+    for file in "${root_files[@]}"; do
+        local src="$FRAMEWORK_DIR/$file"
+        local tgt="$TARGET_DIR/$file"
+        
+        if [[ ! -f "$src" ]]; then
+            continue
+        fi
+        
+        if [[ "$DRY_RUN" == true ]]; then
+            log_info "[DRY RUN] Would update: $file"
+            continue
+        fi
+        
+        if [[ -f "$tgt" && "$FORCE" != true ]]; then
+            # Check if files differ
+            if ! diff -q "$src" "$tgt" > /dev/null 2>&1; then
+                cp "$src" "$tgt"
+                log_info "  Updated: $file"
+                ((updated++))
+            fi
+        else
+            cp "$src" "$tgt"
+            log_info "  Added/Replaced: $file"
+            ((updated++))
+        fi
+    done
+    
+    if [[ $updated -gt 0 ]]; then
+        log_success "Root files updated: $updated files"
+    fi
+}
+
 # Update .qwenignore
 update_qwenignore() {
     log_info "Updating .qwenignore..."
@@ -276,6 +315,8 @@ show_summary() {
     echo "Updated components:"
     [[ -d "$TARGET_DIR/.qwen/hooks" ]] && echo "  ✓ Hooks"
     [[ -d "$TARGET_DIR/templates" ]] && echo "  ✓ Templates"
+    [[ -f "$TARGET_DIR/init-project.sh" ]] && echo "  ✓ init-project.sh"
+    [[ -f "$TARGET_DIR/init-project.ps1" ]] && echo "  ✓ init-project.ps1"
     [[ -f "$TARGET_DIR/.qwenignore" ]] && echo "  ✓ .qwenignore"
     [[ "$FORCE" == true && -d "$TARGET_DIR/scripts" ]] && echo "  ✓ Scripts (force)"
     echo
@@ -290,5 +331,6 @@ show_summary() {
 update_hooks
 update_templates
 update_scripts
+update_root_files
 update_qwenignore
 show_summary
